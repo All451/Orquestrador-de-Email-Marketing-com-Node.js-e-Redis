@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  # API Server
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: email-orchestrator-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - N8N_BASE_URL=http://n8n:5678
+      - MONGODB_URI=mongodb://mongodb:27017/email_orchestrator
+    volumes:
+      - ./credentials:/app/credentials
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+      - mongodb
+      - n8n
+    networks:
+      - email-network
+    restart: unless-stopped
+
+  # Worker Service
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: email-orchestrator-worker
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_CONCURRENCY=10
+      - QUEUE_MAX_RETRIES=3
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+      - api
+    networks:
+      - email-network
+    restart: unless-stopped
+    command: npm run start:worker
+
+  # Redis for Queues
+  redis:
+    image: redis:7-alpine
+    container_name: email-orchestrator-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - email-network
+    restart: unless-stopped
+
+  # MongoDB for persistence
+  mongodb:
+    image: mongo:6
+    container_name: email-orchestrator-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - email-network
+    restart: unless-stopped
+
+  # n8n Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: email-orchestrator-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_WEBHOOK_URL=https://your-domain.com
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n-workflows:/home/node/.n8n/workflows
+    networks:
+      - email-network
+    restart: unless-stopped
+
+  # Redis Commander (UI for Redis)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - email-network
+    restart: unless-stopped
+
+  # Mongo Express (UI for MongoDB)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    ports:
+      - "8082:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password123
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+    depends_on:
+      - mongodb
+    networks:
+      - email-network
+    restart: unless-stopped
+
+networks:
+  email-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  mongodb_data:
+  n8n_data:
