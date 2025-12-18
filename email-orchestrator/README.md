@@ -1,10 +1,10 @@
 # Email Orchestrator
 
-Custom orchestrator with Redis queues for email marketing automation. This solution provides a complete system for managing email campaigns with n8n integration, Google Sheets support, and comprehensive monitoring.
+Custom orchestrator with Redis queues for email marketing automation. Complete system for managing email campaigns with n8n integration, Google Sheets support, and monitoring.
 
 ## 🏗️ Architecture
 
-```
+```mermaid
 graph TB
     A[API Node.js] --> B[Producer Service];
     B --> C[Redis Queue];
@@ -33,83 +33,45 @@ graph TB
 email-orchestrator/
 ├── src/
 │   ├── core/
-│   │   ├── queue/
-│   │   │   ├── producer.service.ts
-│   │   │   ├── worker.service.ts
-│   │   │   ├── queue.manager.ts
-│   │   │   └── queues.ts
-│   │   └── cache/
-│   │       ├── redis.client.ts
-│   │       └── cache.service.ts
+│   │   └── queue/
+│   │       ├── producer.service.ts
+│   │       ├── worker.service.ts
+│   │       ├── queue.manager.ts
+│   │       └── queues.ts
 │   ├── jobs/
 │   │   ├── trial.job.ts
 │   │   ├── marketing.job.ts
-│   │   ├── bulk.job.ts
-│   │   └── webhook.job.ts
+│   │   └── bulk.job.ts
 │   ├── api/
 │   │   ├── controllers/
-│   │   │   ├── automation.controller.ts
-│   │   │   ├── webhook.controller.ts
-│   │   │   └── monitor.controller.ts
 │   │   ├── routes/
-│   │   │   ├── automation.routes.ts
-│   │   │   ├── webhook.routes.ts
-│   │   │   └── monitor.routes.ts
-│   │   ├── middleware/
-│   │   │   ├── auth.ts
-│   │   │   ├── validation.ts
-│   │   │   └── rate-limit.ts
 │   │   └── app.ts
 │   ├── services/
 │   │   ├── n8n.service.ts
 │   │   ├── googleSheets.service.ts
-│   │   ├── email.service.ts
-│   │   └── webhook.service.ts
-│   ├── models/
-│   │   ├── job.model.ts
-│   │   ├── lead.model.ts
-│   │   └── execution.model.ts
-│   ├── utils/
-│   │   ├── logger.ts
-│   │   ├── validator.ts
-│   │   └── helpers.ts
+│   │   └── email.service.ts
 │   └── config/
 │       ├── queue.config.ts
-│       ├── redis.config.ts
-│       └── n8n.config.ts
+│       └── redis.config.ts
 ├── docker-compose.yml
 ├── package.json
-├── .env.example
-└── README.md
+└── .env.example
 ```
 
 ## 🚀 Quick Start
 
-### 1. Clone and setup:
-```bash
-git clone seu-repositorio
-cd email-orchestrator
-cp .env.example .env
-# Edit .env with your configurations
-```
-
-### 2. Install dependencies:
+### Setup:
 ```bash
 npm install
-```
+cp .env.example .env
+# Edit .env with your configurations
 
-### 3. Start with Docker:
-```bash
+# Start with Docker
 chmod +x deploy.sh
 ./deploy.sh
-```
 
-### 4. Or run locally:
-```bash
-# Terminal 1 - API
+# Or run locally (separate terminals)
 npm run start:api
-
-# Terminal 2 - Worker
 npm run start:worker
 ```
 
@@ -118,9 +80,6 @@ npm run start:worker
 - **Dashboard**: http://localhost:3000/admin/queues
 - **API**: http://localhost:3000/api/automation
 - **Health**: http://localhost:3000/health
-- **Redis UI**: http://localhost:8081
-- **MongoDB UI**: http://localhost:8082
-- **n8n**: http://localhost:5678
 
 ## 🔄 API Endpoints
 
@@ -142,65 +101,35 @@ POST /api/automation/campaign
   "niche": "clinica",
   "sheetId": "your-sheet-id",
   "sheetName": "Leads",
-  "limit": 100,
-  "campaignName": "Summer Campaign"
-}
-```
-
-### Bulk Send
-```bash
-POST /api/automation/bulk
-{
-  "niche": "imobiliaria",
-  "leads": [
-    {
-      "nome": "Lead 1",
-      "email": "lead1@example.com"
-    },
-    {
-      "nome": "Lead 2",
-      "email": "lead2@example.com"
-    }
-  ]
+  "limit": 100
 }
 ```
 
 ## 📈 Monitoring
 
-Use the monitoring script to check system status:
+Check system status with:
 ```bash
 ./monitor.sh
 ```
 
-## 🐳 Docker Compose Services
-
-- **API**: Main application server
-- **Worker**: Job processing workers
-- **Redis**: Queue management
-- **MongoDB**: Data persistence
-- **n8n**: Workflow automation
-- **Redis Commander**: Redis UI
-- **Mongo Express**: MongoDB UI
-
 ## 🛠️ Technologies
 
-- **Node.js**: Runtime environment
-- **Express**: Web framework
+- **Node.js/Express**: Backend API
 - **Bull**: Queue management
-- **Redis**: In-memory data store
+- **Redis**: In-memory storage
 - **n8n**: Workflow automation
 - **Google Sheets API**: Data integration
 - **TypeScript**: Type safety
 - **Docker**: Containerization
 
-## ✅ Features
+## 🚀 Features
 
-- **Complete control** over automation workflows
-- **Cost effective** with open-source components
-- **High performance** with async processing
-- **Comprehensive monitoring** and metrics
-- **Scalable architecture** with multiple workers
+- **Asynchronous processing** with Redis queues
 - **Retry mechanisms** with exponential backoff
-- **Integration ready** with n8n and Google Sheets
+- **Multiple workflow types** (trial, marketing, bulk)
+- **Google Sheets integration**
+- **n8n workflow automation**
 
-This solution offers **all the functionality of Trigger.dev** but with complete control, zero cloud costs, and maximum flexibility!
+---
+
+**Complete email automation solution with full control and zero vendor lock-in!**
