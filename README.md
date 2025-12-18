@@ -1,5 +1,3 @@
-Excelente ideia! Vou criar uma solução completa de **orquestrador próprio** usando Node.js, Redis para filas e Bull para gerenciamento de jobs. É mais flexível e econômico que serviços externos.
-
 ## 🏗️ **Arquitetura do Orquestrador Proprietário**
 
 ```mermaid
@@ -1662,5 +1660,3 @@ npm run start:worker
 - Multi-workers
 - Load balancing
 - Cluster Redis
-
-Esta solução oferece **toda a funcionalidade do Trigger.dev** mas com controle total, custo zero em infra própria e máxima flexibilidade! Quer que eu detalhe algum aspecto específico?
